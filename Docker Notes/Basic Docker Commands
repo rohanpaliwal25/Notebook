@@ -1,0 +1,143 @@
+## Docker Commands Cheat Sheet  
+*(With Real-Life Scenarios)*  
+
+### 1. Core Concepts  
+**Docker Image**  
+- **Definition**: Immutable template (e.g., `nginx:1.14-alpine`) containing code, dependencies, and configurations.  
+**Docker Container**  
+- **Definition**: Runtime instance of an image (e.g., a live web server).  
+
+**Example**:  
+- **Image** = Blueprint for a house.  
+- **Container** = Actual house built from the blueprint.  
+
+### 2. Container Management  
+
+#### List Containers  
+- **All containers (running/stopped)**:  
+  ```bash
+  docker ps -a
+  ```
+- **Only running containers**:  
+  ```bash
+  docker ps
+  ```
+- **Only container IDs (for scripting)**:  
+  ```bash
+  docker ps -q
+  ```
+
+**Real-Life Use**:  
+- Use `docker ps -a` to debug why a stopped container failed.  
+- Use `docker ps -q` to automate cleanup scripts.  
+
+#### Start/Stop Containers  
+- **Stop a running container**:  
+  ```bash
+  docker stop <container_name>
+  ```
+- **Stop all running containers**:  
+  ```bash
+  docker stop $(docker ps -q)
+  ```
+
+**Example**:  
+- If a containerized app (`webapp`) crashes, stop it first before debugging.  
+
+#### Remove Containers  
+- **Remove a single container**:  
+  ```bash
+  docker rm <container_name>
+  ```
+- **Remove all containers (forcefully)**:  
+  ```bash
+  docker rm -f $(docker ps -a -q)
+  ```
+
+**Real-Life Use**:  
+- Clean up after testing multiple app versions.  
+
+### 3. Image Management  
+
+#### List Images  
+```bash
+docker images
+```
+
+#### Remove Images  
+- **Remove a specific image**:  
+  ```bash
+  docker rmi <image_name>
+  ```
+- **Remove all images**:  
+  ```bash
+  docker rmi $(docker images -q)
+  ```
+
+**Example**:  
+- Delete old/unused images (e.g., `ubuntu:18.04`) to free up disk space.  
+
+#### Run a Container from an Image  
+```bash
+docker run --name webapp -d -p 8080:80 nginx:1.14-alpine
+```
+- `-d`: Run in detached mode (background).  
+- `-p 8080:80`: Map host port 8080 to container port 80.  
+
+**Real-Life Use**:  
+- Deploy a lightweight Nginx server for a staging environment.  
+
+### 4. Inspect Relationships  
+
+#### Find Image from Container  
+```bash
+docker inspect --format='{{.Config.Image}}' <container_name>
+```
+
+#### Find Containers Using an Image  
+```bash
+docker ps --filter "ancestor=nginx:1.14-alpine"
+```
+
+**Example**:  
+- Identify which containers are using an outdated image (e.g., `nginx:1.14-alpine`) before updating.  
+
+### 5. Cleanup  
+
+#### Full System Cleanup  
+```bash
+docker system prune --all --volumes
+```
+- Removes **all** stopped containers, unused images, networks, and volumes.  
+
+**Real-Life Use**:  
+- Reset your local dev environment after testing.  
+
+## Real-Life Workflow Example  
+**Scenario**: Deploying a web app.  
+
+1. **Pull the image**:  
+   ```bash
+   docker pull nginx:1.14-alpine
+   ```
+2. **Run the container**:  
+   ```bash
+   docker run -d --name webapp -p 80:80 nginx:1.14-alpine
+   ```
+3. **Troubleshoot**:  
+   ```bash
+   docker logs webapp # Check logs if the app fails
+   ```
+4. **Cleanup**:  
+   ```bash
+   docker stop webapp && docker rm webapp
+   docker rmi nginx:1.14-alpine
+   ```
+
+## Key Takeaways for Interviews  
+- **Images are immutable**, containers are **mutable**.  
+- Use `docker ps -a` to see **all containers**, `docker ps` for **running ones**.  
+- Always **stop containers** before removing them (or use `-f` to force).  
+- `docker system prune` is a nuclear option for cleanup.
+
+format above content for github file with headings etc
